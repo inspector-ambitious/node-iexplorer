@@ -27,22 +27,36 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF 
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#ifndef WEBBROWSERWRAP_H
+#define WEBBROWSERWRAP_H
+
 #define _WINSOCKAPI_ /* disable winsock.h */
 #include <comutil.h>
 #include <exdisp.h>
 #include <process.h>    /* _beginthread, _endthread */
 #include <stddef.h>
 
-#define BUILDING_NODE_EXTENSION
+//#define BUILDING_NODE_EXTENSION
 #include <node.h>
-#include <v8.h>
 
-#include "lib/web_browser.h"
+class WebBrowserWrap : public node::ObjectWrap {
+ public:
+  static void Initialize(v8::Handle<v8::Object> target);
+  IWebBrowser2* GetWrapped() const { return w_; };
+  
+ private:
+  WebBrowserWrap(const v8::Arguments& args);
+  ~WebBrowserWrap();
 
-using namespace v8;
+  static v8::Persistent<v8::Function> constructor;
+  
+  static v8::Handle<v8::Value> New(const v8::Arguments& args);
+  
+  static v8::Handle<v8::Value> Open(const v8::Arguments& args);
+  
+  static v8::Handle<v8::Value> Close(const v8::Arguments& args);
 
-void Initialize(Handle<Object> target) {
-  WebBrowserWrap::Initialize(target);
-}
+  IWebBrowser2* w_;
+};
 
-NODE_MODULE(iexplorer, Initialize);
+#endif

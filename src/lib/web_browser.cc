@@ -51,9 +51,16 @@ WebBrowserWrap::WebBrowserWrap(const v8::Arguments& args) {
 }
 
 WebBrowserWrap::~WebBrowserWrap() {
-  delete w_;
+  if (w_) {
+    w_->Quit();
+    w_->Release();
+    delete w_;
+  }
+  OleUninitialize();
+  
 }
 
+// Js definition
 void WebBrowserWrap::Initialize(Handle<Object> target) {
   
   // constructor
@@ -74,6 +81,7 @@ void WebBrowserWrap::Initialize(Handle<Object> target) {
   target->Set(String::NewSymbol("WebBrowser"), constructor);
 }
 
+// instantiation
 Handle<Value> WebBrowserWrap::New(const Arguments& args) {
   HandleScope scope;
 
@@ -83,9 +91,14 @@ Handle<Value> WebBrowserWrap::New(const Arguments& args) {
   return scope.Close(args.This());
 }
 
-
+// open an url
 Handle<Value> WebBrowserWrap::Open(const Arguments& args) {
   HandleScope scope;
+  
+  if (!args[0]->IsString()) {
+    return ThrowException(Exception::TypeError(String::New("First argument must be a string")));
+  }
+  
   WebBrowserWrap* w = ObjectWrap::Unwrap<WebBrowserWrap>(args.This());
   IWebBrowser2* webBrowser = w->GetWrapped();
   BSTR oURL = SysAllocString(reinterpret_cast<const OLECHAR*>(*v8::String::Value(args[0]->ToString())));
@@ -98,6 +111,8 @@ Handle<Value> WebBrowserWrap::Open(const Arguments& args) {
   return scope.Close(Undefined());
 }
 
+
+// close the browser and finish the thread
 Handle<Value> WebBrowserWrap::Close(const Arguments& args) {
   HandleScope scope;
   WebBrowserWrap* w = ObjectWrap::Unwrap<WebBrowserWrap>(args.This());

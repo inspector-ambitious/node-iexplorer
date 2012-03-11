@@ -1,0 +1,8 @@
+{ 
+    "name": "node-iexplorer",
+    "version": "0.0.1",
+    "author": "Nicolas Ferrero",
+    "description": "Headless Internet Explorer for Node.js",
+    "homepage": "http://github.com/yhwh/node-iexplorer",
+    "main": "./src/iexplorer"
+}
